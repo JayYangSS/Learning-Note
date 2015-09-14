@@ -233,3 +233,91 @@ foo(1);
 // b = undefined
 // Array []
 ```
+
+###generator生成器使用
+generator看上去像是一个函数，可以多次返回函数值。它的定义方式如下：
+```javascript
+function* fib(max)
+{
+    var t,a=0,b=1,n=1;
+    while(n<max){
+        yield a;
+        t=a+b;
+        a=b;
+        b=t;
+        n++;
+    }
+    return a;
+}
+```
+上述函数是一个生成斐波那契数列的函数。generator的定义是由:`function*`来定义的，使用`yield`来返回函数值，这时函数并不会终止。直接调用的的话不可以，必须使用如下两种方式调用：
+1. 不断的调用`next()`方法
+```javascripit
+var f = fib(5);  //仅仅是创建了generator对象
+f.next(); // {value: 0, done: false}
+f.next(); // {value: 1, done: false}
+f.next(); // {value: 1, done: false}
+f.next(); // {value: 2, done: false}
+f.next(); // {value: 3, done: true}
+```
+2. 使用`for...of`循环迭代来调用
+```javascript
+for (var x of fib(5)) {
+    console.log(x); // 依次输出0, 1, 1, 2, 3
+}
+```
+
+##对象
+可以使用typeof来查看对象类型。在javascript中，一切皆为对象。
+```javascript
+typeof 123; // 'number'
+typeof NaN; // 'number'
+typeof 'str'; // 'string'
+typeof true; // 'boolean'
+typeof undefined; // 'undefined'
+typeof Math.abs; // 'function'
+typeof null; // 'object'
+typeof []; // 'object'
+typeof {}; // 'object'
+```
+但是`null,[],{}`使用`typeof`区分不出来，解决的办法：
+1. 判断`Array`要使用`Array.isArray(arr)`来判断
+2. 判断`null`要使用`myVar===null`来判断
+其中javascript中还有包装对象，新建包装对象要使用`new`。但是包装对象的类型均为`object`
+```javascript
+var n = new Number(123); // 123,生成了新的包装类型
+var b = new Boolean(true); // true,生成了新的包装类型
+var s = new String('str'); // 'str',生成了新的包装类型
+
+typeof new Number(123); // 'object'
+new Number(123) === 123; // false
+
+typeof new Boolean(true); // 'object'
+new Boolean(true) === true; // false
+
+typeof new String('str'); // 'object'
+new String('str') === 'str'; // false
+```
+如果不写关键字`new`，则不是新建包装对象，而是将它们当作函数使用，将变量转变为相应类型的变量。
+```javascript
+var n = Number('123'); // 123，相当于parseInt()或parseFloat()
+typeof n; // 'number'
+
+var b = Boolean('true'); // true
+typeof b; // 'boolean'
+
+var b2 = Boolean('false'); // true! 'false'字符串转换结果为true！因为它是非空字符串！
+var b3 = Boolean(''); // false
+
+var s = String(123.45); // '123.45'
+typeof s; // 'string'
+```
+
+* 判断某个全局变量是否存在，使用的方法：`typeof window.myVar==='undefined'`
+* 函数内部判断某个变量是否存在：`typeof myVar==='undefined'`
+**数字转string的方式**:
+```javascript
+123..toString(); // '123', 注意是两个点！
+(123).toString(); // '123'
+```
+使用`123.toString()`是会报错的。
