@@ -251,6 +251,7 @@ function* fib(max)
 }
 ```
 上述函数是一个生成斐波那契数列的函数。generator的定义是由:`function*`来定义的，使用`yield`来返回函数值，这时函数并不会终止。直接调用的的话不可以，必须使用如下两种方式调用：
+
 1. 不断的调用`next()`方法
 ```javascripit
 var f = fib(5);  //仅仅是创建了generator对象
@@ -260,6 +261,7 @@ f.next(); // {value: 1, done: false}
 f.next(); // {value: 2, done: false}
 f.next(); // {value: 3, done: true}
 ```
+
 2. 使用`for...of`循环迭代来调用
 ```javascript
 for (var x of fib(5)) {
@@ -315,9 +317,35 @@ typeof s; // 'string'
 
 * 判断某个全局变量是否存在，使用的方法：`typeof window.myVar==='undefined'`
 * 函数内部判断某个变量是否存在：`typeof myVar==='undefined'`
+
 **数字转string的方式**:
 ```javascript
 123..toString(); // '123', 注意是两个点！
 (123).toString(); // '123'
 ```
 使用`123.toString()`是会报错的。
+
+###RegExp(正则表达式)
+* `\d`可以匹配一个数字，如'00\d'可以匹配'007'
+* `\w`可以匹配一个字母，如'00\w'可以匹配'00s'
+* `.`可以匹配任何字符，所以`'js.'`可以匹配`'jsp'、'jss'、'js!'`等等。
+* 用`*`表示任意个字符（包括0个），用`+`表示至少一个字符，用`?`表示0个或1个字符，用`{n}`表示n个字符，用`{n,m}`表示n-m个字符：如`\d{3}`表示匹配3个数字，`\d{3,8}`表示匹配3到8个数字
+* `\s`可以匹配一个空格（也包括Tab等空白符）
+* `A|B`表示可以匹配A或B，所以`[J|j]ava[S|s]cript`可以匹配`Javascript,javascript,JavaScript,javaScript`
+* `^`表示行的开头，^\d`表示必须以数字开头，`$`表示行的结尾，`\d$`表示必须以数字结束
+
+在javascript中是用正则表达式的方式有2种：
+
+1. 使用`/正则表达式/`的方式直接使用,检测时直接使用`test()`方法检测是否匹配
+```javascript
+var regExp=/\d{3}\-\d{3,8}$/;
+regExp.test('010-12345');//true
+regExp.test('010-1234x');//false
+```
+
+2. 使用`new`的方式创建RegExp对象，因为字符转义问题，使用`\\`,实际只有一个`\`
+```javascript
+var reg=new RegExp('\\d{3}\\-\\d{3,8}$');
+reg.test('010-12345');//true
+reg.test('010-1234x');//false
+```
