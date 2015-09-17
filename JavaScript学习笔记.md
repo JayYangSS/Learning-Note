@@ -92,6 +92,7 @@ var xiaoming={
 }
 ```
 需要注意的有以下几点：
+
 1. 对象的属性之间要用逗号隔开，但是最后一个（末尾）不用加逗号，因为有的浏览器会报错
 2. 属性名最好按照变量名的规范来，如果属性名含有某些特殊符号，则需要使用`''`来表示，访问属性值时，形式为：`xiaoming.name`,`xiaoming.age`,但是像'middle-school'这种含有特殊符号的属性值的访问，就必须要使用如下方式：`xiaoming['middle-school']`,当然之前的标准变量名的属性值也可以使用这样的方式访问：`xiaoming['name']`。
 3. 访问对象的属性值时，如果没有该属性，则javascript不会报错，而是返回`undefined`的类型
@@ -332,7 +333,7 @@ typeof s; // 'string'
 * 用`*`表示任意个字符（包括0个），用`+`表示至少一个字符，用`?`表示0个或1个字符，用`{n}`表示n个字符，用`{n,m}`表示n-m个字符：如`\d{3}`表示匹配3个数字，`\d{3,8}`表示匹配3到8个数字
 * `\s`可以匹配一个空格（也包括Tab等空白符）
 * `A|B`表示可以匹配A或B，所以`[J|j]ava[S|s]cript`可以匹配`Javascript,javascript,JavaScript,javaScript`
-* `^`表示行的开头，^\d`表示必须以数字开头，`$`表示行的结尾，`\d$`表示必须以数字结束
+* `^`表示行的开头，`^\d`表示必须以数字开头，`$`表示行的结尾，`\d$`表示必须以数字结束
 
 在javascript中是用正则表达式的方式有2种：
 
@@ -349,3 +350,81 @@ var reg=new RegExp('\\d{3}\\-\\d{3,8}$');
 reg.test('010-12345');//true
 reg.test('010-1234x');//false
 ```
+
+###JSON
+JSON是javascript的一个子集标准。它的数据格式一共只有一下几种,以及他们的任意组合：
+
+* `number`：和JavaScript的`number`完全一致；
+* `boolean`：就是JavaScript的`true`或`false`；
+* `string`：就是JavaScript的`string`；
+* `null`：就是JavaScript的`null`；
+* `array`：就是JavaScript的`Array`表示方式——`[]`；
+* `object`：就是JavaScript的`{ ... }`表示方式。
+
+JSON的字符数据使用说明：
+
+* 使用的字符集必须为`UTF-8`
+* 字符型数据只能使用`""`才能正确解析,不能使用单引号
+* `Object`的键值必须使用`""`
+
+javascript对象需要序列化后转换为JASON格式数据：
+```javascript
+var xiaoming = {
+    name: '小明',
+    age: 14,
+    gender: true,
+    height: 1.65,
+    grade: null,
+    'middle-school': '\"W3C\" Middle School',
+    skills: ['JavaScript', 'Java', 'Python', 'Lisp']
+};
+//序列化为JASON数据
+JSON.stringify(xiaoming); // '{"name":"小明","age":14,"gender":true,"height":1.65,"grade":null,"middle-school":"\"W3C\" Middle School","skills":["JavaScript","Java","Python","Lisp"]}'
+```
+
+还可以自定义解析内容，方法是给对象自定义一个`toJASON()`函数：
+```javascript
+var xiaoming = {
+    name: '小明',
+    age: 14,
+    gender: true,
+    height: 1.65,
+    grade: null,
+    'middle-school': '\"W3C\" Middle School',
+    skills: ['JavaScript', 'Java', 'Python', 'Lisp'],
+    toJSON: function () {
+        return { // 只输出name和age，并且改变了key：
+            'Name': this.name,
+            'Age': this.age
+        };
+    }
+};
+
+JSON.stringify(xiaoming); // '{"Name":"小明","Age":14}'
+```
+如果想要缩进输出，可以使用如下语句：
+```javascript
+JSON.stringify(xiaoming,null,'  ');
+```
+
+如果只想输出指定的属性，可以传入`Array`，指明属性：
+```javascript
+JSON.stringify(xiaoming, ['name', 'skills'], '  ');
+```
+
+由JASON数据也可以反序列化也可得到javascript的对象，使用`JASON.parse()`:
+```javascript
+JSON.parse('[1,2,3,true]'); // [1, 2, 3, true]
+JSON.parse('{"name":"小明","age":14}'); // Object {name: '小明', age: 14}
+```
+还可以传入函数来处理解析的结果：
+```javascript
+JSON.parse('{"name":"小明","age":14}', function (key, value) {
+    // 把number * 2:
+    if (key === 'name') {
+        return value + '同学';
+    }
+    return value;
+}); // Object {name: '小明同学', age: 14}
+```
+
