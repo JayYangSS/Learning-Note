@@ -319,6 +319,8 @@ typeof s; // 'string'
 * 判断某个全局变量是否存在，使用的方法：`typeof window.myVar==='undefined'`
 * 函数内部判断某个变量是否存在：`typeof myVar==='undefined'`
 
+* `this`在strict模式下，指向`undefined`,在非strict模式下，指向`window`
+
 **数字转string的方式**:
 ```javascript
 123..toString(); // '123', 注意是两个点！
@@ -428,3 +430,76 @@ JSON.parse('{"name":"小明","age":14}', function (key, value) {
 }); // Object {name: '小明同学', age: 14}
 ```
 
+###原型继承的方式
+
+每一个对象都有`prototype`属性，这个属性表示的就是该对象的原型。
+
+1. 使用`obj.create()`传入一个原型对象，可以创建某一个以该参数对象为原型的对象
+```javascript
+var object=Object.create({x:1});//创建的对象object原型指向对象{x:1}
+object.x//1
+// 原型对象:
+var Student = {
+    name: 'Robot',
+    height: 1.2,
+    run: function () {
+        console.log(this.name + ' is running...');
+    }
+};
+
+function createStudent(name) {
+    // 基于Student原型创建一个新对象:
+    var s = Object.create(Student);
+    // 初始化新对象:
+    s.name = name;
+    return s;
+}
+
+var xiaoming = createStudent('小明');
+xiaoming.run(); // 小明 is running...
+xiaoming.__proto__ === Student; // true
+```
+
+2. 使用构造函数的方法创建对象，调用时，要使用关键字`new`，不加的话，就只是一个普通的函数而不是作为构造函数来调用。
+```javascript
+function Student(name)
+{
+    this.name=name;
+    this.hello=function()
+    {
+        alert('hello!'+this.name);
+    }
+}
+```
+使用关键字`new`调用构造函数会返回一个对象,`this`默认绑定创建的对象；
+```javascript
+xiaoming=new Student('小明');
+xiaoming.name;; // '小明'
+xiaoming.hello(); // Hello, 小明!
+```
+使用`new`关键字会调用构造器的`prototype`属性。
+下面的代码说明了对象可以继承原型上的属性，但是却无法修改原型的属性。
+```javascript
+function foo(){}
+foo.prototype.z = 3;
+var obj =new foo();
+obj.z=5;
+obj.hasOwnProperty('z');//true(如果修改了原型中的属性值，则会在自己的对象中增加这个属性，并赋相应的值)
+foo.prototype.z;//5，foo的原型对象中的z并未被改变
+
+delete obj.z//true
+obj.z//3
+
+delete obj.z//true(不会删除原型的属性)
+obj.z//still 3!!
+```
+
+
+3. 直接通过字面量创建对象，这时该对象的原型为`Object.prototype`
+```javascript
+var obj1={
+    x : 1, y : 2
+}
+```
+
+`Object.prototype`是不允许被删除的。
