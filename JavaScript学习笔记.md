@@ -503,3 +503,24 @@ var obj1={
 ```
 
 `Object.prototype`是不允许被删除的。
+
+###浏览器对象
+####window
+`window`对象不但有充当全局作用域，还可以表示浏览器窗口。
+####screen
+`screen`对象表示屏幕
+####location
+`location`表示当前页面的URL信息，可以使用`location.href`
+获取全部的URL信息。要获得其他部分信息，如一个URL为:`http://www.example.com:8080/path/index.html?a=1&b=2#TOP`可以使用如下的代码：
+```javascript
+location.protocol; // 'http'
+location.host; // 'www.example.com'
+location.port; // '8080'
+location.pathname; // '/path/index.html'
+location.search; // '?a=1&b=2'
+location.hash; // 'TOP'
+```
+使用`location.reload()`可以重新加载当前页面，使用`location.asign()`可以加载一个新的页面
+####document
+该对象表示当前页面，`document`的`title`属性是从HTML文档中的`<title>xxxx<title>`读取的。
+`document.cookie`可以获得当前页面的`cookie`，但是在服务器端设置cookie的属性为`httpOnly`，则可以防止javascript读取，可以防止恶意代码读取信息。
