@@ -383,6 +383,8 @@ var xiaoming = {
 //序列化为JASON数据
 JSON.stringify(xiaoming); // '{"name":"小明","age":14,"gender":true,"height":1.65,"grade":null,"middle-school":"\"W3C\" Middle School","skills":["JavaScript","Java","Python","Lisp"]}'
 ```
+对象序列化时，如果对象内的某个属性值为`undefined`时，则该属性不会出现在序列化后的内容中；如果对象中某个属性为`NaN`,则序列化后内容为`null`
+
 
 还可以自定义解析内容，方法是给对象自定义一个`toJASON()`函数：
 ```javascript
@@ -523,4 +525,42 @@ location.hash; // 'TOP'
 使用`location.reload()`可以重新加载当前页面，使用`location.asign()`可以加载一个新的页面
 ####document
 该对象表示当前页面，`document`的`title`属性是从HTML文档中的`<title>xxxx<title>`读取的。
-`document.cookie`可以获得当前页面的`cookie`，但是在服务器端设置cookie的属性为`httpOnly`，则可以防止javascript读取，可以防止恶意代码读取信息。
+`document.cookie`可以获得当前页面的`cookie`，使用`document.cookie`可以读取当前页面的Cookie。但是在服务器端设置cookie的属性为`httpOnly`，则可以防止javascript读取，可以防止恶意代码读取信息。
+
+###操作DOM
+HTML文档被浏览器解析后就是一棵DOM树，要改变HTML的机构，只需要操作DOM树即可。在操作一个DOM节点，先要拿到节点，常用的方式是使用javascript的`documentgetElementsById()`和`documentgetElementsByTagName()`以及CSS选择器的`document.getElementsByClassName()`
+下面是实例：
+```javascript
+// 返回ID为'test'的节点：
+var test = document.getElementById('test');
+
+// 先定位ID为'test-table'的节点，再返回其内部所有tr节点：
+var trs = document.getElementById('test-table').getElementsByTagName('tr');
+
+// 先定位ID为'test-div'的节点，再返回其内部所有class包含red的节点：
+var reds = document.getElementById('test-div').getElementsByClassName('red');
+
+// 获取节点test下的所有直属子节点:
+var cs = test.children;
+
+// 获取节点test下第一个、最后一个子节点：
+var first = test.firstElementChild;
+var last = test.lastElementChild;
+```
+
+要访问其中的元素，还要使用`innerHTML`或`innerText`才可以得到其中的内容
+
+###更新DOM
+修改节点的文本方法：
+1. 修改`innerHTML`属性
+2. 修改`innerText`或`textContent`
+修改css样式：
+DOM节点的`style`属性对应所有的CSS，可以直接获取或设置。因为CSS允许`font-size`这样的名称，但它并非JavaScript有效的属性名，所以需要在JavaScript中改写为驼峰式命名`fontSize`：
+```javascript
+// 获取<p id="p-id">...</p>
+var p = document.getElementById('p-id');
+// 设置CSS:
+p.style.color = '#ff0000';
+p.style.fontSize = '20px';
+p.style.paddingTop = '2em';
+```
