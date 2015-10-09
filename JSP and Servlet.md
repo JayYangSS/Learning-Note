@@ -1,9 +1,24 @@
+###JSP中使用JavaBean对象
+在JSP中使用JavaBean有两种方法：
+1。在src下按照规则新建一个JavaBean类，然后再WebRoot下对应的jsp文件中，在声明里新建一个JavaBean类，然后赋值、使用。
+2.或是使用JSp的动作标签，如：
+```java
+<jsp:useBean id="标识符(类似于Java中的变量名)" 
+class="java类名(需要将包名一同写入)" scope="作用范围(默认是page)">
+```
 ###Cookie对象
-
 使Cookie失效的方法：cookie.setMax(0),也就是设置有效生命周期为0；注意修改cookie后需要重新保存添加cookie，否则不会生效
 ```java
 response.addCookie(cookie)//重新保存更改后的cookie，否则不会起作用
 ```
+
+###Session与Cookie的区别
+|   Session  |   Cookie  |
+|:------------:|:-----------:|
+|保存在服务器端的内存中|保存在客户端，浏览器中|
+|暂时的，退出会话后信息丢失|永久的，退出后不会丢失|
+|session中保存的是`Object`类型|cookie中保存的是`String`类型|
+|保存重要信息|保存不重要信息|
 
 ##Servlet
 sevlet是运行在服务器端的小程序，本质上是一个java类，并且可以通过“请求-响应”编程模型来访问的这个驻留在服务器内存里的Servlet程序。
@@ -75,3 +90,42 @@ servlet生命周期阶段包括初始化、加载、实例化、服务和销毁�
   </servlet-mapping> 
 ```
 如果在注解中指定了该Servlet的url，那么在web.xml中就不用写上面的代码了，否则会冲突报错。使用注解的方式更加简洁方便
+###JSP的九大内置对象与Servlet的对应关系
+|JSP                 |servlet              |
+|:--------------------:|:-----------------:|
+|out | resq.getWriter()|
+|reaquest |  service方法中的req参数| 
+|response |   service方法中的resp参数|
+|session  |   request.getSession()函数|
+|application |  getServletContext()函数|
+|exception |  Throwable|
+|page |  this|
+|pageContext|  pageContext|
+|Config |  getServletConfig函数|
+
+
+在Servlet中使用`request.getParameter(String param)`获取表单提交的参数数据时，`param`的名字要与请求jsp页面的`name`属性名称一致才可以，如：
+```java
+//在reg.jsp的表单中要提交的数据：
+      <tr>
+          <td class="label">自我介绍：</td>
+          <td class="controler">
+            <textarea name="introduce" rows="10" cols="40"></textarea>
+          </td>
+      </tr>
+```
+那么在相应的Servlet中获取该数据应该这样写：
+```java
+ introduce=request.getParameter("introduce"); //参数"introduce"要与jsp代码中的name属性值一致
+```
+
+*NOTE:*获取的属性值为单个的话使用`request.getParameter`获取
+checkbox复选框返回的是一个字符串数组，因此必须要用`request.getParameterValues`来获取
+javabean的属性值的设值和取值方法一定要命名不要与变量名称重复，如一开始犯的错误就是给User的是否接受条款属性起名为`isAccept`,结果在eclipse自动生成该方法的get方法时，方法的名称也为`isAccept()`,方法名与属性名一样，这样在Servlet中使用`<jsp:getProperty name="regUser" property="isAccept"/>`来调用getter方法时会取不到相应的属性值。
+
+###JSP跳转Servlet的路径写法
+1. 相对路径访问：相对于当前文件的路径。如href="servlet/TestServlet" ，如果写成`/servlet/TestServlet`会报错，因为第一个`/`表示的是【服务器根目录：http://localhost:8080/】
+2. 绝对路径访问：使用内置成员变量path实现，如`href="<%=path%>/servlet/TestServlet"`。**requst.getContextPath()可以获得项目的根目录**，如：`/MyFirstSevletDemo`
+
+**注意**：
+jsp页面中的地址第一个`/`指的是tomcat服务器的根目录，即`http://localhost:8080/`.而配置文件`web.xml`的url-pattern中的第一个`/`指的是项目根目录，如`http://localhost:8080/Servlet002_GetFormDemo`。所以jsp页面链接地址不加`/`，配置文件中的url-patttern要加`/`。
