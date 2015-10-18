@@ -86,8 +86,7 @@ public class RelativePathUriTemplateController {
 ```
 
 ###注解@PathVarible与@RequestParam的使用
-
-下面代码把URI template 中变量 `courseId`的值绑定到方法的参数上。若方法参数名称和需要绑定的uri template中变量名称不一致，需要在@PathVariable("name")指定uri template中的名称。
+使用@RequestParam注解可以将请求中的参数值绑定到注解修饰的参数上，并且会自动转换为指定参数的类型。@PathVariable也是参数绑定的注解，不同的是它是用于将被注解参数与URI template variable进行绑定。下面代码把URI template 中变量 `courseId`的值绑定到方法的参数上。若方法参数名称和需要绑定的uri template中变量名称不一致，需要在@PathVariable("name")指定uri template中的名称。参看如下代码可以对比两者绑定参数的用法不同之处：
 ```java
 //本方法将处理 /courses/view?courseId=123 形式的URL
     @RequestMapping(value="/view", method=RequestMethod.GET)
@@ -124,7 +123,7 @@ public class RelativePathUriTemplateController {
 可以使用@controller,@RequestMapping,@Responsebody可以实现REST API。(通过URL调用相应的函数返回需要的jason数据)。
 
 
-###@ResponseBody
+###@RequestBody
 该注解的作用是将HTTP request body绑定到方法中被注解的参数上，如下所示：
 ```java
 @RequestMapping(path = "/something", method = RequestMethod.PUT)
@@ -133,3 +132,68 @@ public void handle(@RequestBody String body, Writer writer) throws IOException {
 }
 ```
 使用的是`HttpMessageConverter `将HTTP request body转化为方法中参数类型。
+
+###@ResponseStatus
+使用@ResponseStatus注解的异常出现时，`ResponseStatusExceptionResolver`可以通过设置response的状态来处理该异常。示例如下：
+```java
+@ControllerAdvice//使用@ControllerAdvice,作用域是全局Controller范围
+  public class AControllerAdvice {
+      @ExceptionHandler(NullPointerException.class)//当出现NullPointerException异常时，执行被@ExceptionHandler注解的方法
+      @ResponseStatus(HttpStatus.BAD_REQUEST)//当NullPointerException异常出现时，将response的状态置为HttpStatus.BAD_REQUEST
+      @ResponseBody
+      public String handleIOException(NullPointerException ex) {
+         return ClassUtils.getShortName(ex.getClass()) + ex.getMessage();
+     }
+```
+###@ControllerAdvice
+@ControllerAdvice使用@Component注解，被@ControllerAdvice注解的类可以使用<context:component-scan>自动扫描到。
+，如果不使用任何参数，则表示作用域是全局的@Controller，如果增加参数，表示@ControllerAdvice辅助的@Controller为指定范围内的Controller。请看示例：
+```java
+// Target all Controllers annotated with @RestController
+@ControllerAdvice(annotations = RestController.class)
+public class AnnotationAdvice {}
+
+// Target all Controllers within specific packages
+@ControllerAdvice("org.example.controllers")
+public class BasePackageAdvice {}
+
+// Target all Controllers assignable to specific classes
+@ControllerAdvice(assignableTypes = {ControllerInterface.class, AbstractController.class})
+public class AssignableTypesAdvice {}
+```
+可应用到所有@RequestMapping类或方法上的@ExceptionHandler、@InitBinder、@ModelAttribute,下面的代码表示处理所有抛出NullPointerException异常的Controller。
+```java
+@ControllerAdvice
+  public class AControllerAdvice {
+      @ExceptionHandler(NullPointerException.class)
+      @ResponseStatus(HttpStatus.BAD_REQUEST)
+      @ResponseBody
+      public Strtring handleIOException(NullPointerException ex) {
+          return ClassUtils.getShortName(ex.getClass()) + ex.getMessage();
+     }
+ }
+```
+把@ControllerAdvice注解内部使用@ExceptionHandler、@InitBinder、@ModelAttribute注解的方法应用到所有的 @RequestMapping注解的方法。非常简单，不过只有当使用@ExceptionHandler最有用，另外两个用处不大。
+```java
+@ControllerAdvice  
+public class ControllerAdviceTest {  
+  
+    @ModelAttribute  
+    public User newUser() {  
+        System.out.println("============应用到所有@RequestMapping注解方法，在其执行之前把返回值放入Model");  
+        return new User();  
+    }  
+  
+    @InitBinder  
+    public void initBinder(WebDataBinder binder) {  
+        System.out.println("============应用到所有@RequestMapping注解方法，在其执行之前初始化数据绑定器");  
+    }  
+  
+    @ExceptionHandler(UnauthenticatedException.class)  
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)  
+    public String processUnauthenticatedException(NativeWebRequest request, UnauthenticatedException e) {  
+        System.out.println("===========应用到所有@RequestMapping注解的方法，在其抛出UnauthenticatedException异常时执行");  
+        return "viewName"; //返回一个逻辑视图名  
+    }  
+}  
+```
