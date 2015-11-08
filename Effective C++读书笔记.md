@@ -25,8 +25,9 @@ explicit   只对构造函数起作用，用来抑制隐式转换。通过将构
 
 ```
 
-3.delete关键字
+3. delete关键字
 使用`delete`关键字可以禁用函数，示例如下：
+
 ```c++
 class X{
 public:
@@ -47,9 +48,54 @@ int main(){
     X x4 = x1;//有新的对象x4被定义，因此这种写法是默认调用了类的拷贝函数
     X x4;
     x4 = x1; //没有新的对象定义，因此这种方式不是调用类的拷贝函数，而是使用赋值操作符“=”
-    x4.doSomething(11);//被禁用的函数，不能调用
+    x4.doSomething(11);//被禁用的函数，不能调用只能
 }
 ```
+
+#条款03：尽可能使用const
+`mutable`只能用于修饰类的非静态数据成员，将永远处于可变的状态，即使在一个const函数中。假如类的成员函数不会改变对象的状态，那么这个成员函数一般会声明为const。但是，有些时候，我们需要在const的函数里面修改一些跟类状态无关的数据成员，那么这个数据成员就应该被mutalbe来修饰。如下所示，为了统计对象输出次数，如果计数对象是普通变量的话，在const成员函数中是不能修改非const变量的；而该变量跟对象的状态无关，所以应该为了修改该变量只能去掉Output的const属性了。这时使用`mutable`就可以了。
+```c++
+class ClxTest
+{
+　public:
+　　ClxTest();
+　　~ClxTest();
+ 
+　　void Output() const;
+　　int GetOutputTimes() const;
+ 
+　private:
+　　mutable int m_iTimes;
+};
+ 
+ClxTest::ClxTest()
+{
+　m_iTimes = 0;
+}
+ 
+ClxTest::~ClxTest()
+{}
+ 
+void ClxTest::Output() const
+{
+　cout << "Output for test!" << endl;
+　m_iTimes++;
+}
+ 
+int ClxTest::GetOutputTimes() const
+{
+　return m_iTimes;
+}
+ 
+void OutputTest(const ClxTest& lx)
+{
+　cout << lx.GetOutputTimes() << endl;
+　lx.Output();
+　cout << lx.GetOutputTimes() << endl;
+}
+```
+当`const`与`non-const`成员函数有着实质等价的实现时，令`non-const`版本调用`const`版本可以避免代码重复。但是反过来是不行的。
+
 
 #条款20：宁以pass-by-reference-to-const替换pas-by-value
 在使用`pass-by-reference`时，声明为`const`是必要的,因为不这样做的话，在函数内部可能会修改传入的`reference`指向的对象
