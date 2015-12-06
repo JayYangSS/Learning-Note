@@ -1,0 +1,12 @@
+{
+    /* Sets the parser used for building markdown to HTML. */
+    "parser": "markdown",
+
+    /* Enable or not mathjax support. */
+    "enable_mathjax": true,
+
+    "enable_highlight": true,
+
+    /* Remove github */
+    "enabled_parsers": ["markdown"]
+}
