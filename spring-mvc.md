@@ -197,3 +197,23 @@ public class ControllerAdviceTest {
     }  
 }  
 ```
+
+
+###拦截器的使用
+
+1. 创建一个实现HandlerInterceptor接口的类，这个类就是一个拦截器
+2. 在spring mvc中注册这个拦截器
+```xml
+<mvc:interceptors>
+  <mvc:mapping path="/viewAll.form"><!--拦截规则，只拦截以viewAll.form结尾的请求，这里的value可以使用正则表达式-->
+  <bean class="拦截器的类名"></bean>
+</mvc:interceptors>
+```
+
+3. 配置拦截器的拦截规则，使用示例请见上方代码
+
+
+###多个拦截器的工作顺序
+
+请看下图：
+![多个拦截器](http://7xniym.com1.z0.glb.clouddn.com/多个拦截器执行问题.png)
