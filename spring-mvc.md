@@ -216,4 +216,38 @@ public class ControllerAdviceTest {
 ###多个拦截器的工作顺序
 
 请看下图：
+
 ![多个拦截器](http://7xniym.com1.z0.glb.clouddn.com/多个拦截器执行问题.png)
+
+
+##AOP
+
+AOP技术是切面编程技术，能够剖解开封装的对象内部，并将那些影响了多个类并且与具体业务无关的公共行为 封装成一个独立的模块（称为切面）。AOP的具体实现使用的是动态代理或者在程序编译期间进行静态的“植入”方式来实现。可以用于日志记录，性能统计，安全控制，权限管理，事务处理，异常处理，资源池管理等。
+
+### 
+
+###Around Advice（环绕通知）
+
+第一个参数必须是ProceedingJointPoint类型
+
+```java
+public Object around(ProceedingJoinPoint pjp) {
+    Object obj = null;
+    try {
+      System.out.println("MoocAspect around 1.");
+      obj = pjp.proceed();
+      System.out.println("MoocAspect around 2.");
+    } catch (Throwable e) {
+      e.printStackTrace();
+    }
+    return obj;
+  }
+```
+
+配置：
+
+```xml
+<aop:around method="around" pointcut-ref="moocPiontcut"/>
+```
+
+###Spring事务控制
